@@ -992,7 +992,6 @@ public final class DumpVisitor implements VoidVisitor<Object> {
 	    	if (yieldBlock.getBody() == null) {
 	            printer.print(";");
 	        } else {
-	            //printer.print(" ");
 	            isYieldBlock = true;
 	            yieldBlock.getBody().accept(this, arg);
 	            isYieldBlock = false;

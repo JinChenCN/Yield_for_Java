@@ -46,7 +46,6 @@ import japa.parser.ast.type.*;
  * @author J�lio Vilmar Gesser (jgesser@gmail.com) - bug fixes and added AST generation
  */
 public final class JavaParser {
-
     private static JavaParser parser;
     private YieldDeclaration yieldBlock = null;
 	private HashMap<String,YieldDeclaration> yieldMap = new HashMap<String,YieldDeclaration>();
@@ -1515,7 +1514,7 @@ MethodDeclaration MethodDeclaration(Modifier modifier):
   type = ResultType() { if(line==-1){line=type.getBeginLine(); column=type.getBeginColumn();}}
   <IDENTIFIER> { name = token.image; } parameters = FormalParameters() ( "[" "]" { arrayCount++; } )*
   [ "throws" throws_ = NameList() ]
-  ( block = Block() | ";" )
+  ( LOOKAHEAD(Block())block = Block() | block = HasYieldBlock(name) | ";" )
   
   { return new MethodDeclaration(line, column, popJavadoc(), modifier.modifiers, modifier.annotations, typeParameters, type, name, parameters, arrayCount, throws_, block); }
 }
@@ -1614,6 +1613,16 @@ List Statements():
 }
 {
 	( stmt = BlockStatement() { ret = add(ret, stmt); } )*
+	{ return ret; }
+}
+
+List HasYieldStatements(String methodName):
+{
+	List ret = null;
+	Statement stmt;
+}
+{
+	( stmt = HasYieldBlockStatement(methodName) { ret = add(ret, stmt); } )*
 	{ return ret; }
 }
 
@@ -2383,7 +2392,55 @@ Statement Statement():
 	    yieldMap.put(yieldBlock.getName(), yieldBlock);
 	  }
 	|
-	  ret = Yield(yieldBlock)
+	  ret = EmptyStatement()
+	|
+	  LOOKAHEAD(StatementExpression()) ret = StatementExpression()
+	|
+	  ret = SwitchStatement()
+	|
+	  ret = IfStatement()
+	|
+	  ret = WhileStatement()
+	|
+	  ret = DoStatement()
+	|
+	  ret = ForStatement()
+	|
+	  ret = BreakStatement()
+	|
+	  ret = ContinueStatement()
+	|
+	  ret = ReturnStatement()
+	|
+	  ret = ThrowStatement()
+	|
+	  ret = SynchronizedStatement()
+	|
+	  ret = TryStatement()
+  )
+  { return ret; }
+}
+
+Statement HasYieldStatement(String methodName):
+{
+	Statement ret;
+}
+{
+  (
+	  LOOKAHEAD(2)
+	  ret = LabeledStatement()
+	|
+	  ret = AssertStatement()
+	|
+	  ret = Block()
+	|
+	  LOOKAHEAD(YieldBlock()) yieldBlock = YieldBlock()
+	  {
+	    ret = yieldBlock;
+	    yieldMap.put(yieldBlock.getName(), yieldBlock);
+	  }
+	|
+	  ret = Yield(methodName)
 	|
 	  ret = EmptyStatement()
 	|
@@ -2414,14 +2471,14 @@ Statement Statement():
   { return ret; }
 }
 
-YieldStmt Yield(YieldDeclaration yieldBlock):
+YieldStmt Yield(String methodName):
 {
   	int line;
 	int column;
 }
 {
   < YIELD > {line=token.beginLine; column=token.beginColumn;} ";"
-   { return new YieldStmt(line, column, yieldBlock); }}
+   { return new YieldStmt(line, column, yieldMap.get(methodName)); }}
 
 YieldDeclaration YieldBlock():
 {
@@ -2436,7 +2493,6 @@ YieldDeclaration YieldBlock():
   <IDENTIFIER> { name = token.image; line=token.beginLine; column=token.beginColumn; }
   parameters = FormalParameters() ( "[" "]" { arrayCount++; } )*
   ( block = Block() | ";" ) ";"
-
   { return new YieldDeclaration(line, column, name, parameters, arrayCount, block); }
 }
 
@@ -2479,6 +2535,21 @@ BlockStmt Block():
   { return new BlockStmt(beginLine, beginColumn, endLine, endColumn, stmts); }
 }
 
+BlockStmt HasYieldBlock(String methodName):
+{
+	List stmts;
+	int beginLine;
+	int beginColumn;
+	int endLine;
+	int endColumn;
+}
+{
+  "{" {beginLine=token.beginLine; beginColumn=token.beginColumn;} 
+  	stmts = HasYieldStatements(methodName)
+  "}" {endLine=token.beginLine; endColumn=token.beginColumn;}
+  { return new BlockStmt(beginLine, beginColumn, endLine, endColumn, stmts); }
+}
+
 /*
  * Classes inside block stametents can only be abstract or final. The semantic must check it. 
  */
@@ -2500,6 +2571,28 @@ Statement BlockStatement():
 	  expr = VariableDeclarationExpression() { ret = new ExpressionStmt(expr.getBeginLine(), expr.getBeginColumn(), expr); } ";"
     |
 	  ret = Statement()
+  )
+  { return ret; }
+}
+
+Statement HasYieldBlockStatement(String methodName):
+{
+	Statement ret;
+	Expression expr;
+	ClassOrInterfaceDeclaration typeDecl;
+	Modifier modifier;
+}
+{
+  (
+	  LOOKAHEAD( Modifiers() ("class" | "interface") )
+  	  { pushJavadoc(); }
+	  modifier = Modifiers()
+	  typeDecl = ClassOrInterfaceDeclaration(modifier) { ret = new TypeDeclarationStmt(typeDecl.getBeginLine(), typeDecl.getBeginColumn(), typeDecl); }
+	|
+  	  LOOKAHEAD(VariableDeclarationExpression() )
+	  expr = VariableDeclarationExpression() { ret = new ExpressionStmt(expr.getBeginLine(), expr.getBeginColumn(), expr); } ";"
+    |
+	  ret = HasYieldStatement(methodName)
   )
   { return ret; }
 }

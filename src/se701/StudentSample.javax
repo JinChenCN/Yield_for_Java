@@ -2,6 +2,12 @@ package se701;
 
 public class StudentSample {
 
+	public static void cj() {
+		System.out.println("Execution3 started");
+		yield;
+		System.out.println("Execution3 ended"); 
+	}
+
 	public static void main(String[] args){ 
 		sampleMethod(){ 
 			//The yield block 
@@ -9,12 +15,27 @@ public class StudentSample {
 				System.out.println(i);
 			}
 		}; 
+		
+		
+		sampleMethod2(){ 
+			System.out.println("test cj");
+		}; 
+		
+		cj(){ 
+			System.out.println("111");
+		};
 	} 
 
  	public static void sampleMethod() {
 		System.out.println("Execution started");
 		yield;
 		System.out.println("Execution ended"); 
+	}
+	
+	public static void sampleMethod2() {
+		System.out.println("Execution2 started");
+		yield;
+		System.out.println("Execution2 ended"); 
 	}
 
 }
