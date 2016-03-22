@@ -25,7 +25,6 @@ import japa.parser.ast.stmt.BlockStmt;
 import japa.parser.ast.stmt.Statement;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
-
 import java.util.List;
 
 /**
@@ -39,7 +38,7 @@ public final class YieldDeclaration extends Statement {
 
     private final int arrayCount;
 
-    private final BlockStmt body;
+    private final BlockStmt body;  
 
     public YieldDeclaration(int line, int column, String name, List<Parameter> parameters, int arrayCount, BlockStmt block) {
         super(line, column);       

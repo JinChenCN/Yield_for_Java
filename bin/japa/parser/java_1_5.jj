@@ -49,6 +49,7 @@ public final class JavaParser {
 
     private static JavaParser parser;
     private YieldDeclaration yieldBlock = null;
+	private HashMap<String,YieldDeclaration> yieldMap = new HashMap<String,YieldDeclaration>();
 
     public static CompilationUnit parse(InputStream in, String encoding) throws ParseException {
         if (parser == null) {
@@ -2379,6 +2380,7 @@ Statement Statement():
 	  LOOKAHEAD(YieldBlock()) yieldBlock = YieldBlock()
 	  {
 	    ret = yieldBlock;
+	    yieldMap.put(yieldBlock.getName(), yieldBlock);
 	  }
 	|
 	  ret = Yield(yieldBlock)
@@ -2418,7 +2420,7 @@ YieldStmt Yield(YieldDeclaration yieldBlock):
 	int column;
 }
 {
-  < YIELD > {line=token.beginLine; column=token.beginColumn;} 
+  < YIELD > {line=token.beginLine; column=token.beginColumn;} ";"
    { return new YieldStmt(line, column, yieldBlock); }}
 
 YieldDeclaration YieldBlock():

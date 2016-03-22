@@ -122,6 +122,7 @@ import java.util.List;
 public final class DumpVisitor implements VoidVisitor<Object> {
 
     private final SourcePrinter printer = new SourcePrinter();
+    private boolean isYieldBlock = false;
 
     public String getSource() {
         return printer.getSource();
@@ -964,7 +965,14 @@ public final class DumpVisitor implements VoidVisitor<Object> {
     }
 
     public void visit(BlockStmt n, Object arg) {
-        printer.printLn("{");
+       boolean printRB = true;
+       if(!isYieldBlock)
+    	{
+    	   printer.printLn("{");        
+    	} else {
+    		printRB = false;
+    		isYieldBlock = false;
+    	}
         if (n.getStmts() != null) {
             printer.indent();
             for (Statement s : n.getStmts()) {
@@ -973,8 +981,8 @@ public final class DumpVisitor implements VoidVisitor<Object> {
             }
             printer.unindent();
         }
-        printer.print("}");
-
+        if(!isYieldBlock && printRB)
+        { printer.print("}");}
     }
     
     public void visit(YieldStmt n, Object arg) {
@@ -984,8 +992,10 @@ public final class DumpVisitor implements VoidVisitor<Object> {
 	    	if (yieldBlock.getBody() == null) {
 	            printer.print(";");
 	        } else {
-	            printer.print(" ");
+	            //printer.print(" ");
+	            isYieldBlock = true;
 	            yieldBlock.getBody().accept(this, arg);
+	            isYieldBlock = false;
 	        }
     	} else {
     		printer.print("//yieldBlock is null!");
