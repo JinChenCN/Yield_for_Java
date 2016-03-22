@@ -2435,7 +2435,7 @@ YieldDeclaration YieldBlock():
 {
   <IDENTIFIER> { name = token.image; line=token.beginLine; column=token.beginColumn; }
   parameters = FormalParameters() ( "[" "]" { arrayCount++; } )*
-  block = Block() ";"
+  ( block = Block() | ";" ) ";"
 
   { return new YieldDeclaration(line, column, name, parameters, arrayCount, block); }
 }
