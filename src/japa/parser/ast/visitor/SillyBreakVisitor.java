@@ -116,6 +116,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import se701.A2SemanticsException;
+import se701.SemanticsException;
+import symtab.GlobalScope;
+import symtab.Symbol;
+import symtab.VariableSymbol;
 
 /**
  * @author Julio Vilmar Gesser
@@ -124,6 +128,7 @@ import se701.A2SemanticsException;
 public final class SillyBreakVisitor implements VoidVisitor<Object> {
 
     private final SourcePrinter printer = new SourcePrinter();
+    private GlobalScope globalScope = new GlobalScope();
 
     public String getSource() {
         return printer.getSource();
@@ -435,24 +440,33 @@ public final class SillyBreakVisitor implements VoidVisitor<Object> {
     }
 
     public void visit(FieldDeclaration n, Object arg) {
-        if (n.getJavaDoc() != null) {
-            n.getJavaDoc().accept(this, arg);
-        }
-        printMemberAnnotations(n.getAnnotations(), arg);
-        printModifiers(n.getModifiers());
-        n.getType().accept(this, arg);
+    	 if (n.getJavaDoc() != null) {
+             n.getJavaDoc().accept(this, arg);
+         }
+         printMemberAnnotations(n.getAnnotations(), arg);
+         printModifiers(n.getModifiers());
+         n.getType().accept(this, arg);
+         
+         Symbol symOfVariable = globalScope.resolve(n.getType().toString());
+         if(symOfVariable == null){
+         	throw new SemanticsException(n.getType().toString() + " on line " + n.getType().getBeginLine() + " is not a defined type");
+         }
+         if(!(symOfVariable instanceof symtab.Type)){
+         	throw new SemanticsException(n.getType().toString() + " on line " + n.getType().getBeginLine() + " is not a valid type");
+         }
+         
 
-        printer.print(" ");
-        for (Iterator<VariableDeclarator> i = n.getVariables().iterator(); i.hasNext();) {
-            VariableDeclarator var = i.next();
-            var.accept(this, arg);
-            if (i.hasNext()) {
-                printer.print(", ");
-            }
-        }
+         printer.print(" ");
+         for (Iterator<VariableDeclarator> i = n.getVariables().iterator(); i.hasNext();) {
+             VariableDeclarator var = i.next();
+             var.accept(this, arg);
+             if (i.hasNext()) {
+                 printer.print(", ");
+             }
+         }
 
-        printer.print(";");
-    }
+         printer.print(";");
+     }
 
     public void visit(VariableDeclarator n, Object arg) {
         n.getId().accept(this, arg);
@@ -942,10 +956,19 @@ public final class SillyBreakVisitor implements VoidVisitor<Object> {
     }
 
     public void visit(VariableDeclarationExpr n, Object arg) {
-        printAnnotations(n.getAnnotations(), arg);
+    	printAnnotations(n.getAnnotations(), arg);
         printModifiers(n.getModifiers());
 
         n.getType().accept(this, arg);
+        
+        Symbol symOfVariable = globalScope.resolve(n.getType().toString());
+        if(symOfVariable == null){
+        	throw new SemanticsException(n.getType().toString() + " on line " + n.getType().getBeginLine() + " is not a defined type");
+        }
+        if(!(symOfVariable instanceof symtab.Type)){
+        	throw new SemanticsException(n.getType().toString() + " on line " + n.getType().getBeginLine() + " is not a valid type");
+        }
+        
         printer.print(" ");
 
         for (Iterator<VariableDeclarator> i = n.getVars().iterator(); i.hasNext();) {
@@ -954,8 +977,52 @@ public final class SillyBreakVisitor implements VoidVisitor<Object> {
             if (i.hasNext()) {
                 printer.print(", ");
             }
+            Symbol variable = globalScope.resolve(v.getId().toString());
+            if(variable != null){
+            	throw new SemanticsException(v.getId().toString() + " on line " + v.getId().getBeginLine() + " is already defined. Try another variable name.");
+            }
+            
+            symtab.Type typeOfLeft = (symtab.Type)symOfVariable;
+            symtab.Type typeOfRight = getTypeOfExpression(v.getInit());
+            if(typeOfRight == null){
+            	throw new SemanticsException(v.getInit().toString() + " on line " + v.getId().getBeginLine() + " is undefined. ");
+            }
+            if(typeOfLeft == null){
+            	throw new SemanticsException(symOfVariable.getName() + " on line " + v.getId().getBeginLine() + " is undefined. ");
+            }
+            if(typeOfRight != typeOfLeft){
+            	throw new SemanticsException("Cannot convert from " + typeOfRight.getName() + " to " + typeOfLeft.getName() + " on line " + n.getType().getBeginLine());
+            }
+            
+            VariableSymbol varSym = new VariableSymbol(v.getId().getName(), (symtab.Type)symOfVariable );
+            globalScope.define(varSym);
         }
     }
+
+    private symtab.Type getTypeOfExpression(Expression init) {
+    	symtab.Type type = null;
+    	if(init != null){
+    		Symbol sym = null;
+    		if(init.getClass() == NameExpr.class){
+    			sym = globalScope.resolve(init.toString());
+    			if (sym == null)
+    			{
+    				throw new SemanticsException(init.toString() + " on line " + init.getBeginLine() + " is undefined. ");
+    			}
+    		}
+    		else if(init.getClass() == IntegerLiteralExpr.class){
+    			sym = globalScope.resolve("int");
+    			System.out.println("found int");
+    		}else if (init.getClass() == StringLiteralExpr.class){
+    			sym = globalScope.resolve("String");
+    			System.out.println("fount String");
+    		}
+    		//TODO other primitive types
+    		type = (symtab.Type) sym;
+    	}
+		return type;
+	}
+
 
     public void visit(TypeDeclarationStmt n, Object arg) {
         n.getTypeDeclaration().accept(this, arg);
