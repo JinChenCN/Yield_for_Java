@@ -24,6 +24,11 @@ public class StudentSample {
 		cj(){ 
 			System.out.println("111");
 		};
+		
+		sampleMethod(){ 
+			//The yield block 
+			System.out.println("This is the second time of calling the method.");
+		}; 
 	} 
 
  	public static void sampleMethod() {

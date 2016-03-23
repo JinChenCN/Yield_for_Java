@@ -12,13 +12,12 @@ public class StudentSample {
         sampleMethod();
         test();
         cj();
+        sampleMethod();
     }
 
     public static void sampleMethod() {
         System.out.println("Execution started");
-            for (int i = 0; i < 20; i++) {
-                System.out.println(i);
-            }
+            System.out.println("This is the second time of calling the method.");
 
         System.out.println("Execution ended");
     }
