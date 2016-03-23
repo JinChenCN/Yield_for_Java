@@ -3056,7 +3056,7 @@ public final class JavaParser implements JavaParserConstants {
     jj_consume_token(YIELD);
              line=token.beginLine; column=token.beginColumn;
     jj_consume_token(SEMICOLON);
-     {if (true) return new YieldStmt(line, column, yieldMap.get(methodName));}
+     {if (true) return new YieldStmt(line, column, methodName, yieldMap.get(methodName));}
     throw new Error("Missing return statement in function");
   }
 

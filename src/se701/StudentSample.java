@@ -10,7 +10,7 @@ public class StudentSample {
 
     public static void main(String[] args) {
         sampleMethod();
-        sampleMethod2();
+        test();
         cj();
     }
 
@@ -23,7 +23,7 @@ public class StudentSample {
         System.out.println("Execution ended");
     }
 
-    public static void sampleMethod2() {
+    public static void test() {
         System.out.println("Execution2 started");
             System.out.println("test cj");
 

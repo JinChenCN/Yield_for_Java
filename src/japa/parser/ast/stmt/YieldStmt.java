@@ -29,10 +29,12 @@ import japa.parser.ast.visitor.VoidVisitor;
  * @author Julio Vilmar Gesser
  */
 public final class YieldStmt extends Statement {
+	private String methodName;
 	private YieldDeclaration yieldBlock;
 
-    public YieldStmt(int beginLine, int beginColumn, YieldDeclaration yieldBlock) {
+    public YieldStmt(int beginLine, int beginColumn, String methodName, YieldDeclaration yieldBlock) {
         super(beginLine, beginColumn);
+        this.methodName = methodName;
         this.yieldBlock = yieldBlock;
     }
 

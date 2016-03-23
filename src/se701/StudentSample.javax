@@ -17,7 +17,7 @@ public class StudentSample {
 		}; 
 		
 		
-		sampleMethod2(){ 
+		test(){ 
 			System.out.println("test cj");
 		}; 
 		
@@ -32,7 +32,7 @@ public class StudentSample {
 		System.out.println("Execution ended"); 
 	}
 	
-	public static void sampleMethod2() {
+	public static void test() {
 		System.out.println("Execution2 started");
 		yield;
 		System.out.println("Execution2 ended"); 
