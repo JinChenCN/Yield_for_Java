@@ -37,6 +37,10 @@ public final class YieldStmt extends Statement {
         this.methodName = methodName;
         this.yieldBlock = yieldBlock;
     }
+    
+    public String getMethodName() {
+        return methodName;
+    }
 
     public YieldDeclaration getYieldBlock() {
         return yieldBlock;
