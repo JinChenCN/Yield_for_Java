@@ -49,6 +49,8 @@ public final class JavaParser {
     private static JavaParser parser;
     private YieldDeclaration yieldBlock = null;
 	private HashMap<String,YieldDeclaration> yieldMap = new HashMap<String,YieldDeclaration>();
+	private HashMap<String,Integer> yieldTimes = new HashMap<String,Integer>();
+	private HashMap<String,BlockStmt> yieldBlocks = new HashMap<String,BlockStmt>();
 
     public static CompilationUnit parse(InputStream in, String encoding) throws ParseException {
         if (parser == null) {
@@ -2483,17 +2485,28 @@ YieldStmt Yield(String methodName):
 YieldDeclaration YieldBlock():
 {
 	String name;
+	String newName;
 	List parameters;
 	int arrayCount = 0;
 	BlockStmt block = null;
 	int line = -1;
 	int column = 0;
+	int yieldTime = 0;
 }
 {
   <IDENTIFIER> { name = token.image; line=token.beginLine; column=token.beginColumn; }
   parameters = FormalParameters() ( "[" "]" { arrayCount++; } )*
   ( block = Block() | ";" ) ";"
-  { return new YieldDeclaration(line, column, name, parameters, arrayCount, block); }
+  {
+    if(yieldTimes.get(name) != null)
+    {
+      yieldTime = yieldTimes.get(name) + 1;
+      newName = name + "Yield" + yieldTime;        }
+    else    {
+      newName = name;	}
+    yieldBlocks.put(name, block);  
+    yieldTimes.put(newName, yieldTime);
+    return new YieldDeclaration(line, column, newName, parameters, arrayCount, block); }
 }
 
 AssertStmt AssertStatement():
