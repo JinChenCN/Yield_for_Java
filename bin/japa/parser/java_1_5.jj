@@ -1509,6 +1509,7 @@ MethodDeclaration MethodDeclaration(Modifier modifier):
 	BlockStmt block = null;
 	int line = -1;
 	int column = 0;
+	boolean hasYield = false;
 }
 {
   // Modifiers already matched in the caller!
@@ -1516,9 +1517,9 @@ MethodDeclaration MethodDeclaration(Modifier modifier):
   type = ResultType() { if(line==-1){line=type.getBeginLine(); column=type.getBeginColumn();}}
   <IDENTIFIER> { name = token.image; } parameters = FormalParameters() ( "[" "]" { arrayCount++; } )*
   [ "throws" throws_ = NameList() ]
-  ( LOOKAHEAD(Block())block = Block() | block = HasYieldBlock(name) | ";" )
+  ( LOOKAHEAD(Block())block = Block() | block = HasYieldBlock(name){hasYield = true;} | ";" )
   
-  { return new MethodDeclaration(line, column, popJavadoc(), modifier.modifiers, modifier.annotations, typeParameters, type, name, parameters, arrayCount, throws_, block); }
+  { return new MethodDeclaration(line, column, popJavadoc(), modifier.modifiers, modifier.annotations, typeParameters, type, name, parameters, arrayCount, throws_, block, hasYield); }
 }
 
 List FormalParameters():

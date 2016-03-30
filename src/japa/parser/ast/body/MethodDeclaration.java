@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Júlio Vilmar Gesser.
+ * Copyright (C) 2007 Jï¿½lio Vilmar Gesser.
  * 
  * This file is part of Java 1.5 parser and Abstract Syntax Tree.
  *
@@ -29,6 +29,7 @@ import japa.parser.ast.type.Type;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,8 +54,12 @@ public final class MethodDeclaration extends BodyDeclaration {
     private final List<NameExpr> throws_;
 
     private final BlockStmt body;
+    
+    private boolean hasYield;
+    
+	private HashMap<String,BlockStmt> yieldBlocks = new HashMap<String,BlockStmt>();
 
-    public MethodDeclaration(int line, int column, JavadocComment javaDoc, int modifiers, List<AnnotationExpr> annotations, List<TypeParameter> typeParameters, Type type, String name, List<Parameter> parameters, int arrayCount, List<NameExpr> throws_, BlockStmt block) {
+    public MethodDeclaration(int line, int column, JavadocComment javaDoc, int modifiers, List<AnnotationExpr> annotations, List<TypeParameter> typeParameters, Type type, String name, List<Parameter> parameters, int arrayCount, List<NameExpr> throws_, BlockStmt block, boolean hasYield) {
         super(line, column, javaDoc);
         this.modifiers = modifiers;
         this.annotations = annotations;
@@ -65,6 +70,19 @@ public final class MethodDeclaration extends BodyDeclaration {
         this.arrayCount = arrayCount;
         this.throws_ = throws_;
         this.body = block;
+        this.hasYield = hasYield;
+    }
+    
+    public void putYieldBlock(String name, BlockStmt block){
+    	yieldBlocks.put(name, block);
+    }
+    
+    public void getYieldBlock(String name){
+    	yieldBlocks.get(name);
+    }
+    
+    public boolean getHasYield() {
+    	return hasYield;
     }
 
     public int getModifiers() {
