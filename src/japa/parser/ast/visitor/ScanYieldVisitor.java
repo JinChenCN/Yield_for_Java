@@ -139,7 +139,6 @@ public final class ScanYieldVisitor implements VoidVisitor<Object> {
             for (ImportDeclaration i : n.getImports()) {
                 i.accept(this, arg);
             }
-            printer.printLn();
         }
         if (n.getTypes() != null) {
             for (Iterator<TypeDeclaration> i = n.getTypes().iterator(); i.hasNext();) {
@@ -604,7 +603,6 @@ public final class ScanYieldVisitor implements VoidVisitor<Object> {
         if (n.getExpr() != null) {
             n.getExpr().accept(this, arg);
         }
-        printer.print(";");
     }
 
     public void visit(EnumDeclaration n, Object arg) {
