@@ -29,12 +29,25 @@ public class StudentSample {
 			//The yield block 
 			System.out.println("This is the second time of calling the method.");
 		}; 
+		
+		sampleMethod(String a){ 
+			//The yield block 
+			String a = "This is the third time of calling the method.";
+			System.out.println(a);
+		}; 
+		
+	    sampleMethod(String b){ 
+			//The yield block 
+			String b = "This is the fourth time of calling the method.";
+			System.out.println(b);
+		};
 	} 
 
- 	public static void sampleMethod() {
+ 	public static void sampleMethod(String a) {
 		System.out.println("Execution started");
 		yield;
 		System.out.println("Execution ended"); 
+		yield;
 	}
 	
 	public static void test() {

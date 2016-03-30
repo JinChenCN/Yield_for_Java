@@ -979,12 +979,14 @@ public final class DumpVisitor implements VoidVisitor<Object> {
     		isYieldBlock = false;
     	}
         if (n.getStmts() != null) {
-            printer.indent();
+        	 if(!isYieldBlock && printRB)
+            {printer.indent();}
             for (Statement s : n.getStmts()) {
                 s.accept(this, arg);
                 printer.printLn();
             }
-            printer.unindent();
+            if(!isYieldBlock && printRB)
+            {printer.unindent();}
         }
         if(!isYieldBlock && printRB)
         { printer.print("}");}

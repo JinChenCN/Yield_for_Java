@@ -112,6 +112,7 @@ import japa.parser.ast.type.Type;
 import japa.parser.ast.type.VoidType;
 import japa.parser.ast.type.WildcardType;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -120,7 +121,7 @@ import java.util.List;
  */
 
 public final class ScanYieldVisitor implements VoidVisitor<Object> {
-
+	private HashMap<String,BlockStmt> yieldBlocks = new HashMap<String,BlockStmt>();
     private final SourcePrinter printer = new SourcePrinter();
 
     public String getSource() {
@@ -431,16 +432,15 @@ public final class ScanYieldVisitor implements VoidVisitor<Object> {
         n.getBlock().accept(this, arg);
     }
     
-    public void visit(YieldDeclaration n, Object arg) {
-
-       
+    public void visit(YieldDeclaration n, Object arg) {   
         if (n.getParameters() != null) {
             for (Iterator<Parameter> i = n.getParameters().iterator(); i.hasNext();) {
                 Parameter p = i.next();
-                p.accept(this, arg);
-               
+                p.accept(this, arg);               
             }
         }
+        
+        
       
     }
 

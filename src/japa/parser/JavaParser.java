@@ -3112,8 +3112,8 @@ public final class JavaParser implements JavaParserConstants {
     {
       newName = name;
         }
-    yieldBlocks.put(name, block);
-    yieldTimes.put(newName, yieldTime);
+    yieldBlocks.put(newName, block);
+    yieldTimes.put(name, yieldTime);
     {if (true) return new YieldDeclaration(line, column, newName, parameters, arrayCount, block);}
     throw new Error("Missing return statement in function");
   }
